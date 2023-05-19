@@ -7,52 +7,80 @@ def add_time(start, duration, week = False) :
     startM = int(startTimeS[1])
     operand = startTime[1]
 
-    weekday = week.lower()
- #   print(weekDays[weekDays.index(weekday)+1])
+    weekdayIndex = 0
+
+    try :
+        weekday = week.lower()
+    except :
+        weekday = ''
+    
+    if weekday in weekDays :
+        weekdayIndex = weekDays.index(weekday)
     
     durationTime = duration.split(':')
     durationH = int(durationTime[0])
     durationM = int(durationTime[1])
     
     newH = 0
+    displH = 0
     newM = 0
     newO = 'AM'
     newD = ''
-  #  print(durationH)
-    new_time = ''
+    daysLater = ''
+    new_time = 0
 
-    newH = startH + durationH + (math.floor((startM + durationM) / 60))
+    if operand == 'AM' :
+        newH = startH + durationH + (math.floor((startM + durationM) / 60))
+    elif operand == 'PM' : 
+        newH = startH + durationH + (math.floor((startM + durationM) / 60 + 12))
+
 
     if weekday in weekDays :
         if newH >= 24 :
-            newD += weekDays[weekDays.index(weekday)+1].capitalize()
+            weekdayIndex = weekdayIndex + math.floor(newH / 24)
+            if weekdayIndex > len(weekDays) :
+                weekdayIndex = weekdayIndex % 7
+            newD += weekDays[weekdayIndex].capitalize()
+        else :
+            newD += weekDays[weekdayIndex].capitalize()
 
-    print(newD)
+# Calculations of an amount of hours after time
+    if newH < 24 :
+        new_time = f'{newH}:{newM} {newO}'
+    elif newH >= 24 and newH < 48:
+        daysLater += ' (next day)'
+    elif newH >= 48 :
+        daysLater = f' ({math.floor(newH / 24)} days later)'
 
-
+# assigning display hour
     if newH >= 24 :
-        newH = newH % 24
+        displH = newH % 24
+    else :
+        displH = newH
 
     newM = (startM + durationM) % 60
 
-    if newH >= 12 :
-        newH -= 12
+    if displH >= 12 :
+        displH -= 12
         newO = 'PM'
-    else :
+    elif displH < 12 :
         newO = 'AM'
 
+    if displH == 0 :
+        displH = 12
 
+    if newM < 10 :
+        newM = f'0{newM}'
 
+    if newH < 24 :
+        new_time = f'{displH}:{newM} {newO}'
 
+    elif newH >= 24 :
+        new_time = f'{displH}:{newM} {newO}{daysLater}'
 
-
-
-
-
-
-
-    new_time = f'{newH}:{newM} {newO}'
+    if week != False :
+        new_time = f'{displH}:{newM} {newO}, {newD}{daysLater}'
 
     return new_time
 
-print(add_time("23:40 PM", "00:40", 'Monday'))
+print(add_time("11:59 PM", "24:05", "Wednesday"))
